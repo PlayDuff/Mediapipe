@@ -6,8 +6,97 @@
 		<style type="text/css">
 			@import url(./styles.css);
 		</style>
+		<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js" crossorigin="anonymous"></script>
 	<body>
         <div class="main">
-		    <h1>Presentation</h1>
+			<img src="images/logo.png" class="imgTitre">
+			<p>MediaPipe est une API open-source crée par Google qui permet des solutions personalisables en Machine-Learning pour les médias en direct et les streamings</p>
+			
+			<h1>Présentation</h1>
+			<p>MediaPipe permet la reconnaissance en temps direct d'éléments choisis dans le décors comme :</p>
+			<div class="imageCarton">
+				<p>Masque d'arrière-plan pour les selfies</p>
+			</div>
+			<div class="imageCarton">
+				<p>Détéction de mains</p>
+			</div>
+			<div class="imageCarton">
+				<p>Détéction des poses du corps</p>
+			</div>
+			<div class="imageCarton">
+				<p>Détéction d'objets 3D</p>
+			</div>
+
+			<h1>Languages</h1>
+			<img src="images/python.png" height="100px" width="100px">
+			<img src="images/c++.png" height="100px" width="100px">
+			<img src="images/javascript.png" height="100px" width="100px">
+			<img src="images/android.png" height="100px" width="100px">
+			<img src="images/ios.png" height="100px" width="100px">
+
+			<h1>Avanatages</h1>
+			<p>MediaPipe permet de déployer les services implémentés sur plusieurs supports, par ses différets languages.</p>
+			<p>Le système peut être utilisé sur tous types d'appareils.</p>
+			<p>Un seul API : plusieurs fonctionnalités réunis en une.</p>
+
+			<h1>Inconvéniant</h1>
+			<p>Volonté d'être sur tout les supports amenant à une baisse volontaire de précision dans les outils</p>
+			<p>Iconsistance dans les fonctionnalités, comme la segmentation des cheveux ne fonctionnant pas sur IOS</p>
+			<p>(Exemple comparaison : Clay AIR)</p>
+
+			<h1>Utilisation</h1>
+			<p>Pour l'exemple, on va utiliser l'intégration javascript</p>
+			<p>Dans le code de la page web qu'on crée on inserera la commande <strong>npm i @mediapipe/hands</strong> dans la console</p>
+			<p>Puis on se contente de rajouter un lecteur vidéo dans le code HTML</p>
+			<p>Pour ensuite rajouter le script javascript pour créer la détéction des mains</p>
+			<div class="container">
+				<video class="input_video"></video>
+				<canvas class="output_canvas" width="1280px" height="720px"></canvas>
+				
+			</div>
 	</body>
 </html>
+<script type="module">
+	const videoElement = document.getElementsByClassName('input_video')[0];
+	const canvasElement = document.getElementsByClassName('output_canvas')[0];
+	const canvasCtx = canvasElement.getContext('2d');
+	
+	function onResults(results) {
+	  canvasCtx.save();
+	  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+	  canvasCtx.drawImage(
+		  results.image, 0, 0, canvasElement.width, canvasElement.height);
+	  if (results.multiHandLandmarks) {
+		for (const landmarks of results.multiHandLandmarks) {
+		  drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
+						 {color: '#00FF00', lineWidth: 5});
+		  drawLandmarks(canvasCtx, landmarks, {color: '#FF0000', lineWidth: 2});
+		}
+	  }
+	  canvasCtx.restore();
+	}
+	
+	const hands = new Hands({locateFile: (file) => {
+	  return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+	}});
+	hands.setOptions({
+	  maxNumHands: 2,
+	  modelComplexity: 1,
+	  minDetectionConfidence: 0.5,
+	  minTrackingConfidence: 0.5
+	});
+	hands.onResults(onResults);
+	
+	const camera = new Camera(videoElement, {
+	  onFrame: async () => {
+		await hands.send({image: videoElement});
+	  },
+	  width: 1280,
+	  height: 720
+	});
+	camera.start();
+	</script>

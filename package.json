@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@mediapipe/hands": "^0.4.1635986972",
+    "@mediapipe/holistic": "^0.5.1635989137"
+  }
+}
